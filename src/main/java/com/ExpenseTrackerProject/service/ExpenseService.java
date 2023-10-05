@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +25,31 @@ public class ExpenseService {
 
     public void createExpense(Expense expense) throws Exception{
         Optional<Expense> expenseId = expenseRepository.findById(expense.getExpenseId());
-        if(expenseId.isPresent()){
+        Expense expenseName = expenseRepository.findByName(expense.getName());
+        if(expenseId.isPresent() && expenseName != null){
             throw new ExpenseAlreadyExistException("Expense Already Exists");
         }
         expenseRepository.save(expense);
         LocalDate date = LocalDate.now();
         expense.setRegisteredDate(date);
+    }
+
+    public void updateExpense(Expense expense) throws Exception{
+       Optional<Expense> expenseId = expenseRepository.findById(expense.getExpenseId());
+       if(expenseId.isPresent()) {
+           expenseRepository.save(expense);
+       }
+       else {
+           throw new Exception("Expense not found");
+       }
+    }
+    public void deleteExpense(Long expId) throws Exception{
+        Optional<Expense> expenseId = expenseRepository.findById(expId);
+        if(expenseId.isPresent()) {
+            expenseRepository.deleteById(expId);
+        }
+        else {
+            throw new Exception("Expense not found");
+        }
     }
 }

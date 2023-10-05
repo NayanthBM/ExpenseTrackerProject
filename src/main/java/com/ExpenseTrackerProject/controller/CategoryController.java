@@ -1,6 +1,7 @@
 package com.ExpenseTrackerProject.controller;
 
 import com.ExpenseTrackerProject.model.Category;
+import com.ExpenseTrackerProject.request.CategoryCreateRequest;
 import com.ExpenseTrackerProject.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -26,33 +28,23 @@ public class CategoryController {
 
 	@GetMapping("/categories")
 	@Operation(description = "Get all the categories")
-	@ApiResponses(
-			value = {
-					@ApiResponse(
-								responseCode = "200",
-								content = @Content(
+	@ApiResponses(value = {@ApiResponse(responseCode = "200", content = @Content(
 										mediaType = MediaType.APPLICATION_JSON_VALUE,
-										schema = @Schema(
-												implementation = Category.class
-										)
-								)
-					)
-			}
-	)
+										schema = @Schema(implementation = Category.class)))})
 	public List<Category> getCategories() {
 		return categoryService.getCategories();
 	}
 
 	@PostMapping("/categories")
-	public ResponseEntity<String> saveCategory(@RequestBody Category category) {
-		categoryService.saveCategory(category);
+	public ResponseEntity<String> saveCategory(@Valid @RequestBody  CategoryCreateRequest request) {
+		categoryService.saveCategory(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body("Category Saved");
 	}
 
 	@PutMapping("/categories/{categoryID}")
 	public ResponseEntity<String> updateCategory(@RequestBody Category category, @PathVariable("categoryID") String catId) {
 		try {
-			category.setId(Long.valueOf(catId));
+			category.setId(Long.parseLong(catId));
 			categoryService.updateCategory(category);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

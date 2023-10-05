@@ -2,6 +2,7 @@ package com.ExpenseTrackerProject.service;
 
 import com.ExpenseTrackerProject.dao.CategoryRepository;
 import com.ExpenseTrackerProject.model.Category;
+import com.ExpenseTrackerProject.request.CategoryCreateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,11 @@ public class CategoryService {
 	public List<Category> getCategories() {
 		return categoryRepository.findAll();
 	}
-	public void saveCategory(Category category) {
-		categoryRepository.save(category);
+	public void saveCategory(CategoryCreateRequest request) {
+		Category saveCategory = new Category();
+		saveCategory.setName(request.getName());
+		saveCategory.setDescription(request.getDescription());
+		categoryRepository.save(saveCategory);
 	}
 
 	public void updateCategory(Category category) throws Exception{
