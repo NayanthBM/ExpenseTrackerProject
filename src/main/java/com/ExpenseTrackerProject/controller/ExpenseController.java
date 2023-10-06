@@ -43,7 +43,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ExpenseAlreadyExistException.class))),
             @ApiResponse(responseCode = "201", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class)))
     })
-    public ResponseEntity<String> createExpense( @RequestBody ExpenseCreateRequest request) {
+    public ResponseEntity<String> createExpense(@Valid @RequestBody ExpenseCreateRequest request) {
         try {
             expenseService.createExpense(request);
         }
