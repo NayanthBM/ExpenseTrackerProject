@@ -1,17 +1,20 @@
 package com.ExpenseTrackerProject.request;
 
+import com.ExpenseTrackerProject.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotEmpty;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryCreateRequest {
-    @NotEmpty(message = "Name should not be empty")
+public class ExpenseCreateRequest {
     private String name;
-    @NotEmpty(message = "Description should not be empty")
-    private String description;
+    private Double price;
+    private LocalDate purchaseDate;
+    private long categoryId;
 }

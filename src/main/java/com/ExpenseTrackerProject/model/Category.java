@@ -5,9 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-
+@Component
 @Entity
 @Table(name = "Category")
 @Data
@@ -17,22 +18,14 @@ public class Category {
 	
 	@Id
     @Column(name = "category_ID")
-	@SequenceGenerator(
-			name = "category_sequence",
-			sequenceName = "category_sequence",
-			allocationSize = 1)
-	@GeneratedValue(
-			strategy = GenerationType.SEQUENCE,
-			generator = "category_sequence"
-    )
-    @Schema(description = "Category ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
 	@Column(name = "category_name")
-    @Schema(description = "Description of the category")
+    @Schema(description = "Name of the category", example = "Shopping")
 	private String name;
 
     @Column(name = "category_description")
-    @Schema(description = "Name of the category")
+    @Schema(description = "Description of the category", example = "Shopping of groceries")
 	private String description;	
 }

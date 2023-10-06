@@ -2,6 +2,7 @@ package com.ExpenseTrackerProject.controller;
 
 import com.ExpenseTrackerProject.Exceptions.ExpenseAlreadyExistException;
 import com.ExpenseTrackerProject.model.Expense;
+import com.ExpenseTrackerProject.request.ExpenseCreateRequest;
 import com.ExpenseTrackerProject.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,16 +15,19 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.print.attribute.standard.Media;
+
+import javax.validation.Valid;
 import java.util.List;
 
-import static com.ExpenseTrackerProject.constants.ExpensetrackerConstants.*;
+import static com.ExpenseTrackerProject.constants.ExpenseTrackerConstants.*;
 
 @RestController
 @RequestMapping("api/v1")
 public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
+    @Autowired
+    private Expense expense;
     @GetMapping("/expenses")
     @Operation(description = "Get Expense")
     @ApiResponses(value =
@@ -35,40 +39,54 @@ public class ExpenseController {
     @PostMapping("/expenses")
     @Operation(description = "Create an Expense")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Expense.class))),
-            @ApiResponse(responseCode = "400", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ExpenseAlreadyExistException.class))),
-            @ApiResponse(responseCode = "500", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class)))
+            @ApiResponse(responseCode = "400", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Expense.class))),
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ExpenseAlreadyExistException.class))),
+            @ApiResponse(responseCode = "201", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = String.class)))
     })
-    public ResponseEntity<String> createExpense(@RequestBody Expense expense) {
+    public ResponseEntity<String> createExpense( @RequestBody ExpenseCreateRequest request) {
         try {
-            expenseService.createExpense(expense);
-            return ResponseEntity.status(HttpStatus.CREATED).body(successCreated+" an Expense of ID: "+ expense.getExpenseId());
+            expenseService.createExpense(request);
         }
         catch (ExpenseAlreadyExistException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(notCreated);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(notCreated);
         }
+        return ResponseEntity.status(HttpStatus.CREATED).body(successCreated+" an Expense of ID: "+expense.getExpenseId());
     }
-    @PutMapping("/expenses/{expId}")
-    public ResponseEntity<String> updateExpense(@RequestBody Expense expense, @PathVariable("expId") Long expId) {
+    @PutMapping("/expenses/{expenseId}")
+    @Operation(description = "Update an Expense")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = Exception.class))),
+            @ApiResponse(responseCode = "202", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)))
+    })
+    public ResponseEntity<String> updateExpense(@Valid  @RequestBody Expense expense, @PathVariable("expenseId") Long expenseId) {
         try{
             expenseService.updateExpense(expense);
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successfully update an expense of Id"+ expId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(successUpdated+" "+expenseId);
     }
-    @DeleteMapping("/expenses/{expId}")
-    public ResponseEntity<String> deleteExpense(@PathVariable("expId") Long expId) {
+    @DeleteMapping("/expenses/{expenseId}")
+    @Operation(description = "Delete an Expense")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = Exception.class))),
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = String.class)))
+    })
+    public ResponseEntity<String> deleteExpense(@PathVariable("expenseId") Long expenseId) {
         try{
-            expenseService.deleteExpense(expId);
+            expenseService.deleteExpense(expenseId);
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Deleted expense of Id: "+expId);
+        return ResponseEntity.status(HttpStatus.OK).body(successDeleted+" "+expenseId);
     }
 }

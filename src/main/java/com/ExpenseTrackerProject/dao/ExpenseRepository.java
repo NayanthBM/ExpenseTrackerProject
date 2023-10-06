@@ -2,7 +2,10 @@ package com.ExpenseTrackerProject.dao;
 
 import com.ExpenseTrackerProject.model.Expense;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    public Expense findByName(String name);
+    Optional<Expense> findByName(String name);
 }
