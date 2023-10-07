@@ -49,9 +49,18 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
-    public void updateExpense(Expense expense) throws Exception{
+    public void updateExpense(ExpenseCreateRequest request) throws Exception{
         Optional<Expense> expenseId = expenseRepository.findById(expense.getExpenseId());
         if(expenseId.isPresent()) {
+            Optional<Category> category = categoryRepository.findById(request.getCategoryId());
+            if(category.isEmpty()) {
+                throw new Exception(notCreated);
+            }
+            Category categoryToMap = category.get();
+            expense.setName(request.getName());
+            expense.setPrice(request.getPrice());
+            expense.setPurchaseDate(request.getPurchaseDate());
+            expense.setCategory(categoryToMap);
             expenseRepository.save(expense);
         }
         else {

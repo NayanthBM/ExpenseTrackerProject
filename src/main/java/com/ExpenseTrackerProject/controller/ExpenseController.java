@@ -63,9 +63,10 @@ public class ExpenseController {
             @ApiResponse(responseCode = "202", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = String.class)))
     })
-    public ResponseEntity<String> updateExpense(@Valid  @RequestBody Expense expense, @PathVariable("expenseId") Long expenseId) {
+    public ResponseEntity<String> updateExpense(@Valid  @RequestBody ExpenseCreateRequest request, @PathVariable("expenseId") Long expenseId) {
         try{
-            expenseService.updateExpense(expense);
+            expense.setExpenseId(expenseId);
+            expenseService.updateExpense(request);
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
