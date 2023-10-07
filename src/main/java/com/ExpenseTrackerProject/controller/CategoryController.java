@@ -1,6 +1,8 @@
 package com.ExpenseTrackerProject.controller;
 
+import com.ExpenseTrackerProject.Exceptions.CategoryAlreadyExistException;
 import com.ExpenseTrackerProject.model.Category;
+import com.ExpenseTrackerProject.request.CategoryCreateRequest;
 import com.ExpenseTrackerProject.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,7 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+
+import static com.ExpenseTrackerProject.constants.ExpenseTrackerConstants.*;
 
 
 @RestController
@@ -22,51 +27,68 @@ public class CategoryController {
 
 	@Autowired
 	private CategoryService categoryService;
-
+	@Autowired
+	private Category category;
 
 	@GetMapping("/categories")
 	@Operation(description = "Get all the categories")
-	@ApiResponses(
-			value = {
-					@ApiResponse(
-								responseCode = "200",
-								content = @Content(
+	@ApiResponses(value = {@ApiResponse(responseCode = "200", content = @Content(
 										mediaType = MediaType.APPLICATION_JSON_VALUE,
-										schema = @Schema(
-												implementation = Category.class
-										)
-								)
-					)
-			}
-	)
-	public List<Category> getCategories() {
-		return categoryService.getCategories();
+										schema = @Schema(implementation = Category.class)))})
+	public ResponseEntity<List<Category>> getCategories() {
+		List<Category> categoryList = categoryService.getCategories();
+		return ResponseEntity.status(HttpStatus.OK).body(categoryList);
 	}
 
 	@PostMapping("/categories")
-	public ResponseEntity<String> saveCategory(@RequestBody Category category) {
-		categoryService.saveCategory(category);
-		return ResponseEntity.status(HttpStatus.CREATED).body("Category Saved");
+	@Operation(description = "Create a new Category")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+					schema = @Schema(implementation = CategoryAlreadyExistException.class))),
+			@ApiResponse(responseCode = "201", content=@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = String.class)))
+	})
+	public ResponseEntity<String> createCategory(@Valid @RequestBody  CategoryCreateRequest request) {
+		try {
+			categoryService.createCategory(request);
+		} catch (CategoryAlreadyExistException e){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+		return ResponseEntity.status(HttpStatus.CREATED).body("Category "+successCreated);
 	}
 
 	@PutMapping("/categories/{categoryID}")
-	public ResponseEntity<String> updateCategory(@RequestBody Category category, @PathVariable("categoryID") String catId) {
+	@Operation(description = "Update a Category")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = Exception.class))),
+			@ApiResponse(responseCode = "200", content=@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = String.class)))
+	})
+	public ResponseEntity<String> updateCategory(@Valid @RequestBody CategoryCreateRequest request, @PathVariable("categoryID") Long categoryId) {
 		try {
-			category.setId(Long.valueOf(catId));
-			categoryService.updateCategory(category);
+			category.setId(categoryId);
+			categoryService.updateCategory(request);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
-		return ResponseEntity.ok(catId + " Updated Category");
+		return ResponseEntity.status(HttpStatus.OK).body(categoryId +" "+ successUpdated);
 	}
 
 	@DeleteMapping("/categories/{categoryID}")
-	public ResponseEntity<String> deleteCategory(@PathVariable("categoryID") String catId) {
+	@Operation(description = "Delete a Category")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "404", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = Exception.class))),
+			@ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+			schema = @Schema(implementation = String.class)))
+	})
+	public ResponseEntity<String> deleteCategory(@PathVariable("categoryID") Long categoryId) {
 		try {
-			categoryService.deleteCategory(Long.valueOf(catId));
+			categoryService.deleteCategory(categoryId);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(catId+" ID Deleted Successfully");
+		return ResponseEntity.status(HttpStatus.OK).body(categoryId+" "+successDeleted);
 	}
 }
