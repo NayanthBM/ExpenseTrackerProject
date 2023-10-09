@@ -1,12 +1,9 @@
 package com.ExpenseTrackerProject.request;
 
-import com.ExpenseTrackerProject.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.OneToOne;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -14,9 +11,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpenseCreateRequest {
-    @NotNull(message = "Expenses details should not be empty")
+    @NotNull(message = "Name should not be empty")
     private String name;
+    @NotNull(message = "Price should not be empty")
     private Double price;
+    @NotNull(message = "Purchase Date should not be empty")
     private LocalDate purchaseDate;
     private long categoryId;
 }

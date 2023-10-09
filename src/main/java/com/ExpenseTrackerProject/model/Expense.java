@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-@Component
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Component
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +22,8 @@ public class Expense {
     private String name;
     @Schema(description = "Description of the expense", example = "400.00")
     private Double price;
-    @Schema(description = "Purchase date of the expense", example = "25/07/2023")
+    @Schema(description = "Purchase date of the expense", example = "2023/10/07")
     private LocalDate purchaseDate;
-    @OneToOne
+    @ManyToOne
     private Category category;
 }

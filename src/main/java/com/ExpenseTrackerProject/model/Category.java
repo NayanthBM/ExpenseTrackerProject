@@ -8,12 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-@Component
 @Entity
 @Table(name = "Category")
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
+@Component
 public class Category {
 	
 	@Id
