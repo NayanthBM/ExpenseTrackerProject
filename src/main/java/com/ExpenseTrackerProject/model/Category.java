@@ -2,12 +2,12 @@ package com.ExpenseTrackerProject.model;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
 @Entity
 @Table(name = "Category")
 @Data

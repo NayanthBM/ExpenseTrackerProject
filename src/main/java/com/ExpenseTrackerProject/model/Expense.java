@@ -1,18 +1,22 @@
 package com.ExpenseTrackerProject.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.repository.cdi.Eager;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "Expense")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Component
 public class Expense {
     @Id
@@ -24,6 +28,6 @@ public class Expense {
     private Double price;
     @Schema(description = "Purchase date of the expense", example = "2023/10/07")
     private LocalDate purchaseDate;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Category category;
 }
