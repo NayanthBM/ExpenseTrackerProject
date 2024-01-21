@@ -22,7 +22,7 @@ import java.util.List;
 import static com.ExpenseTrackerProject.constants.ExpenseTrackerConstants.*;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("exp/v1")
 public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
@@ -46,15 +46,15 @@ public class ExpenseController {
     public ResponseEntity<String> createExpense(@Valid @RequestBody ExpenseCreateRequest request) {
         try {
             expenseService.createExpense(request);
-        }
-        catch (ExpenseAlreadyExistException e) {
+        } catch (ExpenseAlreadyExistException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(NOT_CREATED.getValue());
         }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(notCreated);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(successCreated+" an Expense of ID: "+expense.getExpenseId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(SUCCESSFULLY_CREATED.getValue() + " an Expense: " + request.getName());
     }
+
     @PutMapping("/expenses/{expenseId}")
     @Operation(description = "Update an Expense")
     @ApiResponses(value = {
@@ -63,7 +63,7 @@ public class ExpenseController {
             @ApiResponse(responseCode = "202", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = String.class)))
     })
-    public ResponseEntity<String> updateExpense(@Valid  @RequestBody ExpenseCreateRequest request, @PathVariable("expenseId") Long expenseId) {
+    public ResponseEntity<String> updateExpense(@Valid  @RequestBody ExpenseCreateRequest request, @PathVariable("expenseId") Integer expenseId) {
         try{
             expense.setExpenseId(expenseId);
             expenseService.updateExpense(request);
@@ -71,7 +71,7 @@ public class ExpenseController {
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(successUpdated+" "+expenseId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(SUCCESSFULLY_UPDATED.getValue()+" Expense "+request.getName());
     }
     @DeleteMapping("/expenses/{expenseId}")
     @Operation(description = "Delete an Expense")
@@ -81,13 +81,25 @@ public class ExpenseController {
             @ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = String.class)))
     })
-    public ResponseEntity<String> deleteExpense(@PathVariable("expenseId") Long expenseId) {
+    public ResponseEntity<String> deleteExpense(@PathVariable("expenseId") Integer expenseId) {
         try{
             expenseService.deleteExpense(expenseId);
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(successDeleted+" "+expenseId);
+        return ResponseEntity.status(HttpStatus.OK).body(SUCCESSFULLY_DELETED.getValue()+" "+expenseId);
     }
+
+    @GetMapping("/expenseName/{expenseName}")
+    public ResponseEntity<Expense> fetchExpenseByName(@PathVariable("expenseName") String expenseName) {
+        try {
+            Expense expense = expenseService.fidByExpenseName(expenseName);
+            return ResponseEntity.status(HttpStatus.FOUND).body(expense);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

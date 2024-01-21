@@ -14,24 +14,27 @@ import static com.ExpenseTrackerProject.constants.ExpenseTrackerConstants.*;
 
 @Service
 public class CategoryService {
+	private CategoryRepository categoryRepository;
+    private Category category;
 
 	@Autowired
-	private CategoryRepository categoryRepository;
-    @Autowired
-    private Category category;
+	public CategoryService(CategoryRepository categoryRepository, Category category) {
+		this.categoryRepository = categoryRepository;
+		this.category = category;
+	}
 
 	public List<Category> getCategories() {
 		return categoryRepository.findAll();
 	}
 
 	public void createCategory(CategoryCreateRequest request) throws CategoryAlreadyExistException{
-	Category categoryName = categoryRepository.findByName(request.getName());
-	if(categoryName != null) {
-		throw new CategoryAlreadyExistException(alreadyExist);
+	Optional<Category> categoryName = categoryRepository.findByNameIgnoreCase(request.getName());
+	if(categoryName.isEmpty()) {
+		throw new CategoryAlreadyExistException(NO_DUPLICATE_CATEGORIES_ALLOWED.getValue());
 	}
     category.setName(request.getName());
     category.setDescription(request.getDescription());
-    categoryRepository.save(category);
+    categoryRepository.save(categoryName.get());
 	}
 
 	public void updateCategory(CategoryCreateRequest request) throws Exception{
@@ -41,15 +44,31 @@ public class CategoryService {
 			category.setDescription(request.getDescription());
 			categoryRepository.save(category);
 		} else {
-			throw new Exception(notFound);
+			throw new Exception(NOT_FOUND.getValue());
 		}
 	}
-	public void deleteCategory(Long catID) throws Exception{
+	public void deleteCategory(Integer catID) throws Exception{
 		Optional<Category> optionalCategory = categoryRepository.findById(catID);
 		if (optionalCategory.isPresent()){
 			categoryRepository.deleteById(catID);
 		} else {
-			throw new Exception(notFound);
+			throw new Exception(NOT_FOUND.getValue());
 		}
+	}
+
+	public Category findCategoryByName(String categoryName) throws Exception {
+		Optional<Category> category = categoryRepository.findByNameIgnoreCase(categoryName);
+		if(category.isEmpty()) {
+			throw new Exception(NOT_FOUND.getValue());
+		}
+		return category.get();
+	}
+
+	public Category deleteCategoryByName(String categoryName) throws Exception {
+		Optional<Category> categoryCheck = categoryRepository.findByNameIgnoreCase(categoryName);
+		if(categoryCheck.isEmpty()) {
+			throw new Exception(NOT_FOUND.getValue());
+		}
+        return categoryRepository.deleteByNameIgnoreCase(categoryName);
 	}
 }

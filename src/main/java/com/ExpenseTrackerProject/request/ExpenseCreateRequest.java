@@ -18,5 +18,5 @@ public class ExpenseCreateRequest {
     private String name;
     private Double price;
     private LocalDate purchaseDate;
-    private long categoryId;
+    private Integer categoryId;
 }

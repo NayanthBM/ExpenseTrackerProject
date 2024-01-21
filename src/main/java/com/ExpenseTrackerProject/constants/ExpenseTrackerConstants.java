@@ -1,11 +1,22 @@
 package com.ExpenseTrackerProject.constants;
 
-public class ExpenseTrackerConstants {
+import lombok.Getter;
 
-    public static String successCreated = "SUCCESSFULLY CREATED";
-    public static String notCreated = "NOT CREATED";
-    public static String successUpdated = "SUCCESSFULLY UPDATED";
-    public static String notFound = "NOT FOUND";
-    public static String alreadyExist = "NO DUPLICATE CATEGORIES ALLOWED";
-    public static String successDeleted = "SUCCESSFULLY DELETED";
+@Getter
+public enum ExpenseTrackerConstants {
+
+    SUCCESSFULLY_CREATED("SUCCESSFULLY CREATED"),
+    NOT_CREATED("NOT CREATED"),
+    SUCCESSFULLY_UPDATED("SUCCESSFULLY UPDATED"),
+    NOT_FOUND("NOT FOUND"),
+    NO_DUPLICATE_CATEGORIES_ALLOWED("NO DUPLICATE CATEGORIES ARE ALLOWED"),
+    NO_DUPLICATE_EXPENSES_ALLOWED("NO DUPLICATE EXPENSES ARE ALLOWED"),
+    SUCCESSFULLY_DELETED("SUCCESSFULLY DELETED");
+
+    private final String value;
+
+    ExpenseTrackerConstants(String value) {
+        this.value = value;
+    }
+
 }

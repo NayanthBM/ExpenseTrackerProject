@@ -1,31 +1,40 @@
 package com.ExpenseTrackerProject.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import javax.persistence.*;
+import java.util.List;
+
 @Component
 @Entity
 @Table(name = "Category")
 @Data
-@AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Category {
 	
 	@Id
-    @Column(name = "category_ID")
+    @Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Integer id;
 	
-	@Column(name = "category_name")
+	@Column(name = "category_name", nullable = false)
     @Schema(description = "Name of the category", example = "Shopping")
 	private String name;
 
-    @Column(name = "category_description")
+    @Column(name = "category_description", nullable = false)
     @Schema(description = "Description of the category", example = "Shopping of groceries")
-	private String description;	
+	private String description;
+
+	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+	@JsonManagedReference
+	private List<Expense> expenseList;
+
+	public Category(String name, String description) {
+		this.name = name;
+		this.description = description;
+	}
 }

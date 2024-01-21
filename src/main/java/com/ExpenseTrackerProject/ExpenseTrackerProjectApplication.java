@@ -11,7 +11,5 @@ public class ExpenseTrackerProjectApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ExpenseTrackerProjectApplication.class, args);
-		System.out.println("Swagger: "+"http://localhost:8080/swagger-ui/index.html");
-		System.out.println("H2 Database: "+"http://localhost:8080/h2-console");
 	}
 }

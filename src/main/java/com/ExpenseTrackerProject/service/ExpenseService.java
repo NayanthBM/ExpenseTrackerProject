@@ -7,6 +7,7 @@ import com.ExpenseTrackerProject.model.Category;
 import com.ExpenseTrackerProject.model.Expense;
 import com.ExpenseTrackerProject.request.ExpenseCreateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,20 +32,20 @@ public class ExpenseService {
         return expenseList;
     }
     @Autowired
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
     public void createExpense(ExpenseCreateRequest request) throws Exception{
-        Optional<Expense> expenseName = expenseRepository.findByName(request.getName());
+        Optional<Expense> expenseName = expenseRepository.findByNameIgnoreCase(request.getName());
         if(expenseName.isPresent()) {
-            throw new ExpenseAlreadyExistException(alreadyExist);
+            throw new ExpenseAlreadyExistException(NO_DUPLICATE_EXPENSES_ALLOWED.getValue());
         }
         Optional<Category> category = categoryRepository.findById(request.getCategoryId());
         if(category.isEmpty()) {
-            throw new Exception(notCreated);
+            throw new Exception(NOT_CREATED.getValue());
         }
         Category categoryToMap = category.get();
         expense.setName(request.getName());
         expense.setPrice(request.getPrice());
-        expense.setPurchaseDate(request.getPurchaseDate());
+        expense.setPurchaseDate(LocalDate.now());
         expense.setCategory(categoryToMap);
         expenseRepository.save(expense);
     }
@@ -54,26 +55,34 @@ public class ExpenseService {
         if(expenseId.isPresent()) {
             Optional<Category> category = categoryRepository.findById(request.getCategoryId());
             if(category.isEmpty()) {
-                throw new Exception(notCreated);
+                throw new Exception(NOT_CREATED.getValue());
             }
             Category categoryToMap = category.get();
             expense.setName(request.getName());
             expense.setPrice(request.getPrice());
-            expense.setPurchaseDate(request.getPurchaseDate());
+            expense.setPurchaseDate(LocalDate.now());
             expense.setCategory(categoryToMap);
             expenseRepository.save(expense);
         }
         else {
-            throw new Exception(notFound);
+            throw new Exception(NOT_FOUND.getValue());
         }
     }
-    public void deleteExpense(Long expId) throws Exception{
+    public void deleteExpense(Integer expId) throws Exception{
         Optional<Expense> expenseId = expenseRepository.findById(expId);
         if(expenseId.isPresent()) {
             expenseRepository.deleteById(expId);
         }
         else {
-            throw new Exception(notFound);
+            throw new Exception(NOT_FOUND.getValue());
         }
+    }
+
+    public Expense fidByExpenseName(String expenseName) throws Exception{
+        Optional<Expense> expense = expenseRepository.findByNameIgnoreCase(expenseName);
+        if(expense.isEmpty()) {
+            throw new Exception(NOT_FOUND.getValue());
+        }
+        return expense.get();
     }
 }
